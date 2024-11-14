@@ -1,6 +1,6 @@
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.config import settings
-from app.api import router  # Sadece bu import'u kullanın
+from app.api import router
 
 app = FastAPI(
     title="Health Platform API",
@@ -17,7 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router)
+app.include_router(router, prefix="/api")
 
 @app.get("/")
 async def root():
