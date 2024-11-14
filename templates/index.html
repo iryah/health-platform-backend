@@ -1,1 +1,36 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Platform API</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Health Platform API</h1>
+            <p id="api-status">API Durumu: Kontrol ediliyor...</p>
+        </header>
 
+        <main>
+            <div class="api-section">
+                <h2>API Dokümantasyonu</h2>
+                <p>API'mizi kullanmaya başlamak için dokümantasyonu inceleyin.</p>
+                <a href="/docs" class="api-link">Swagger Dokümantasyonu</a>
+            </div>
+
+            <div class="api-section">
+                <h2>Endpoint'ler</h2>
+                <ul>
+                    <li><strong>GET /</strong> - Ana sayfa</li>
+                    <li><strong>GET /health</strong> - API sağlık kontrolü</li>
+                    <li><strong>GET /api</strong> - API root endpoint</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
