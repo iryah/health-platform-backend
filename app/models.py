@@ -1,13 +1,16 @@
 from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
+from .database import Base
 
-Base = declarative_base()
-
-# Örnek bir model
-class User(Base):
-    __tablename__ = "users"
+class Patient(Base):
+    __tablename__ = "patients"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
+    tc_no = Column(String, unique=True, index=True)
     name = Column(String)
-    created_at = Column(DateTime)
+    surname = Column(String)
+    birth_date = Column(DateTime)
+    gender = Column(String)
+    phone = Column(String)
+    email = Column(String, nullable=True)
+    address = Column(String, nullable=True)
+    blood_type = Column(String, nullable=True)
