@@ -1,74 +1,61 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from app.api import router
 
 app = FastAPI(
-    title="Health Platform API",
-    description="Sağlık Değerlendirme ve Yönlendirme Platformu",
-    version="1.0.0"
+   title="Health Platform API",
+   description="Sağlık Değerlendirme ve Yönlendirme Platformu",
+   version="1.0.0"
 )
 
 # CORS ayarları
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+   CORSMiddleware,
+   allow_origins=["*"],
+   allow_credentials=True,
+   allow_methods=["*"],
+   allow_headers=["*"],
 )
 
-# Statik dosyalar için klasör oluşturun ve mount edin
+# Statik dosyalar ve templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Templates için Jinja2 kurulumu
 templates = Jinja2Templates(directory="templates")
 
-# Ana sayfa için HTML dönüş
+# Ana sayfa
 @app.get("/", response_class=HTMLResponse)
-async def home():
-    return """
-    <!DOCTYPE html>
-    <html>
-        <head>
-            <title>Health Platform API</title>
-            <style>
-                body { 
-                    font-family: Arial, sans-serif;
-                    margin: 40px;
-                    line-height: 1.6;
-                }
-                .container {
-                    max-width: 800px;
-                    margin: 0 auto;
-                }
-                h1 { color: #333; }
-                .api-link {
-                    display: inline-block;
-                    margin-top: 20px;
-                    padding: 10px 20px;
-                    background: #007bff;
-                    color: white;
-                    text-decoration: none;
-                    border-radius: 5px;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>Health Platform API</h1>
-                <p>Hoş geldiniz! Bu API sağlık platformu için hizmet vermektedir.</p>
-                <a href="/docs" class="api-link">API Dokümantasyonu</a>
-            </div>
-        </body>
-    </html>
-    """
+async def home(request: Request):
+   return templates.TemplateResponse("index.html", {"request": request})
 
-# API router'ı ekleyin
+# API root endpoint
 @app.get("/api")
 async def read_root():
-    return {"message": "Health Platform API"}
+   return {"message": "Health Platform API"}
 
-# Diğer router'ları dahil edin
+# Sağlık kontrolü endpoint'i
+@app.get("/health")
+async def health_check():
+   return {"status": "healthy"}
+
+# 404 hata yakalayıcı
+@app.exception_handler(404)
+async def not_found_error(request: Request, exc):
+   return templates.TemplateResponse(
+       "error.html",
+       {
+           "request": request,
+           "error_code": "404",
+           "error_message": "Sayfa bulunamadı."
+       },
+       status_code=404
+   )
+
+# API router'ını dahil et
 app.include_router(router, prefix="/api")
+
+# Uygulama başlatma bilgisi için
+if __name__ == "__main__":
+   import uvicorn
+   uvicorn.run(app, host="0.0.0.0", port=8000)
