@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from api import router
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.api import router
