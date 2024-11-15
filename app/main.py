@@ -1,8 +1,5 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 from .database import engine
 from . import models
 from .api import router
@@ -25,13 +22,8 @@ app.add_middleware(
    allow_headers=["*"]
 )
 
-# Statik dosyalar ve templates
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
-
 # Ana sayfa
 @app.get("/")
-@app.head("/")  # HEAD metodu için endpoint ekledik
 def read_root():
    return {"message": "Health Platform API"}
 
@@ -42,8 +34,3 @@ async def health_check():
 
 # API router'ını dahil et
 app.include_router(router, prefix="/api")
-
-# Uygulama başlatma bilgisi için
-if __name__ == "__main__":
-   import uvicorn
-   uvicorn.run(app, host="0.0.0.0", port=8000)
