@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine
 from . import models
-from .api import router
+from .router import router
 
 # Veritabanı tablolarını oluştur
 models.Base.metadata.create_all(bind=engine)
@@ -13,7 +13,7 @@ app = FastAPI(
    version="1.0.0"
 )
 
-# CORS ayarları 
+# CORS ayarları
 app.add_middleware(
    CORSMiddleware,
    allow_origins=["*"],
@@ -22,15 +22,13 @@ app.add_middleware(
    allow_headers=["*"]
 )
 
-# Ana sayfa
+# Router'ı ekle
+app.include_router(router, prefix="/api")
+
 @app.get("/")
 def read_root():
    return {"message": "Health Platform API"}
 
-# Health check endpoint'i
 @app.get("/health")
-async def health_check():
+def health_check():
    return {"status": "healthy"}
-
-# API router'ını dahil et
-app.include_router(router, prefix="/api")
