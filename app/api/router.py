@@ -8,9 +8,8 @@ from .. import models
 
 router = APIRouter()
 
-# ... (diğer model tanımlamaları aynı kalacak)
-
-class BloodTestCreate(BaseModel):
+# Pydantic modelleri
+class BloodTestBase(BaseModel):
     hemoglobin: float
     hematocrit: float
     wbc: float
@@ -21,10 +20,24 @@ class BloodTestCreate(BaseModel):
     creatinine: float
     alt: float
     ast: float
+    analysis_notes: Optional[str] = None
 
     class Config:
         from_attributes = True
 
+class BloodTestCreate(BloodTestBase):
+    pass
+
+class BloodTest(BloodTestBase):
+    id: int
+    patient_id: int
+    test_date: datetime
+    is_critical: bool
+
+    class Config:
+        from_attributes = True
+
+# API endpoint'leri
 @router.post("/patients/{tc_no}/blood-tests/", response_model=BloodTest)
 async def create_blood_test(tc_no: str, blood_test: BloodTestCreate, db: Session = Depends(get_db)):
     # Önce hastayı bul
@@ -70,28 +83,38 @@ async def create_blood_test(tc_no: str, blood_test: BloodTestCreate, db: Session
         is_critical = True
         analysis_notes.append("Yüksek AST - Karaciğer fonksiyon bozukluğu olabilir")
     
-    # Kan tahlili kaydını oluştur
-    db_blood_test = models.BloodTest(
-        patient_id=patient.id,
-        hemoglobin=blood_test.hemoglobin,
-        hematocrit=blood_test.hematocrit,
-        wbc=blood_test.wbc,
-        rbc=blood_test.rbc,
-        platelets=blood_test.platelets,
-        glucose=blood_test.glucose,
-        urea=blood_test.urea,
-        creatinine=blood_test.creatinine,
-        alt=blood_test.alt,
-        ast=blood_test.ast,
-        analysis_notes=", ".join(analysis_notes) if analysis_notes else "Normal değerler",
-        is_critical=is_critical
-    )
-    
     try:
+        # Kan tahlili kaydını oluştur
+        db_blood_test = models.BloodTest(
+            patient_id=patient.id,
+            hemoglobin=blood_test.hemoglobin,
+            hematocrit=blood_test.hematocrit,
+            wbc=blood_test.wbc,
+            rbc=blood_test.rbc,
+            platelets=blood_test.platelets,
+            glucose=blood_test.glucose,
+            urea=blood_test.urea,
+            creatinine=blood_test.creatinine,
+            alt=blood_test.alt,
+            ast=blood_test.ast,
+            analysis_notes=", ".join(analysis_notes) if analysis_notes else "Normal değerler",
+            is_critical=is_critical
+        )
+        
         db.add(db_blood_test)
         db.commit()
         db.refresh(db_blood_test)
         return db_blood_test
+        
     except Exception as e:
         db.rollback()
+        print(f"Hata: {str(e)}")  # Hatayı konsola yazdır
         raise HTTPException(status_code=500, detail=str(e))
+
+# GET endpoint'i için
+@router.get("/patients/{tc_no}/blood-tests/", response_model=List[BloodTest])
+async def get_blood_tests(tc_no: str, db: Session = Depends(get_db)):
+    patient = db.query(models.Patient).filter(models.Patient.tc_no == tc_no).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Hasta bulunamadı")
+    return patient.blood_tests
