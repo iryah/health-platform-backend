@@ -13,13 +13,22 @@ app = FastAPI(
    version="1.0.0"
 )
 
-# CORS ayarları
+# CORS ayarları - güncellenmiş hali
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+    "http://127.0.0.1",
+    "http://127.0.0.1:8000",
+    "http://0.0.0.0:8000"
+]
+
 app.add_middleware(
-   CORSMiddleware,
-   allow_origins=["*"],
-   allow_credentials=True,
-   allow_methods=["*"],
-   allow_headers=["*"]
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # Router'ı ekle
