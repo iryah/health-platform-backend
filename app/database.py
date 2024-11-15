@@ -3,11 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-# Render için veritabanı yolunu ayarla
-if os.environ.get("RENDER"):
-    SQLALCHEMY_DATABASE_URL = "sqlite:///health_platform.db"
-else:
-    SQLALCHEMY_DATABASE_URL = "sqlite:///./health_platform.db"
+# SQLite URL 
+SQLALCHEMY_DATABASE_URL = "sqlite:///./health_platform.db"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
