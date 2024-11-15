@@ -1,11 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import os
 
-# SQLite URL 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./health_platform.db"
+# SQLite kullanıyoruz
+SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
 
+# SQLite için check_same_thread=False gerekli
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 )
